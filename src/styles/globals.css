@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700;800&display=swap');
+
+/* ── CSS Variables — change here, updates everywhere ── */
+:root {
+    --color-bg: #0a0d14;
+    --color-surface: #111520;
+    --color-surface-2: #161b28;
+    --color-border: #1e2840;
+    --color-border-2: #2a3a5c;
+
+    --color-text: #e8ecf4;
+    --color-text-muted: #6b7a9e;
+    --color-text-dim: #3a4a6e;
+
+    --color-green: #00e5a0;
+    --color-green-dim: rgba(0, 229, 160, 0.12);
+    --color-green-glow: rgba(0, 229, 160, 0.25);
+
+    --color-red: #ff4a6e;
+    --color-red-dim: rgba(255, 74, 110, 0.12);
+
+    --color-yellow: #ffb830;
+    --color-yellow-dim: rgba(255, 184, 48, 0.12);
+
+    --color-blue: #5b8cff;
+    --color-blue-dim: rgba(91, 140, 255, 0.12);
+
+    --color-purple: #a259ff;
+    --color-purple-dim: rgba(162, 89, 255, 0.12);
+
+    --font-main: 'Sora', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+
+    --transition: all 0.15s ease;
+}
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body,
+#root {
+    min-height: 100vh;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-main);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 74, 110, 0.4);
+    }
+
+    60% {
+        box-shadow: 0 0 0 8px transparent;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── Utility classes ── */
+.fade-up {
+    animation: fadeUp 0.35s ease both;
+}
+
+.fade-in {
+    animation: fadeIn 0.25s ease both;
+}
+
+.slide-in {
+    animation: slideIn 0.25s ease both;
+}
+
+/* ── Grid background ── */
+.grid-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        linear-gradient(rgba(30, 40, 64, 0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 40, 64, 0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
