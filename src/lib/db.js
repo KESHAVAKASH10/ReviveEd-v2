@@ -43,13 +43,18 @@ export async function upsertProfile({
  * Called by QuizEngine when student starts a level.
  * Returns array of question objects from DB.
  */
-export async function getQuestions(classNumber, level, examType = 'level') {
-    const { data, error } = await supabase
+export async function getQuestions(classNumber, level, examType) {
+    let query = supabase
         .from('questions')
         .select('*')
         .eq('class_number', parseInt(classNumber))
         .eq('level', parseInt(level))
-        .eq('exam_type', examType)
+
+    if (examType) {
+        query = query.eq('exam_type', examType)
+    }
+
+    const { data, error } = await query
 
     if (error) {
         console.error('[db] getQuestions error:', error.message)
@@ -61,8 +66,12 @@ export async function getQuestions(classNumber, level, examType = 'level') {
         return []
     }
 
-    console.log('[db] Fetched', data.length, 'questions for class', classNumber, 'level', level)
-    return data
+    // Shuffle randomly and return only 5
+    const shuffled = [...data].sort(() => Math.random() - 0.5)
+    const result = shuffled.slice(0, 5)
+
+    console.log('[db] Returning', result.length, 'questions from', data.length, 'available')
+    return result
 }
 
 /**
@@ -82,8 +91,10 @@ export async function getBoardPrepQuestions(classNumber) {
         return []
     }
 
-    return data || []
+    const shuffled = [...(data ?? [])].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, 10)
 }
+
 
 // ════════════════════════════════════════════════════════
 // STUDENT PROGRESS
@@ -114,7 +125,6 @@ export async function getStudentProgress(studentId, classNumber) {
         total_xp: 0
     }
 }
-
 /**
  * Update student progress after completing a level.
  * Unlocks next level if score >= 60%.
