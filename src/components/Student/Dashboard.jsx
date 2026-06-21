@@ -3,7 +3,6 @@ import { useAuth } from '../../context/AuthContext'
 import { getStudentProgress, getStudentEngagementTrend } from '../../lib/db'
 import { calcShield, getRiskColor } from '../../lib/utils'
 import LoadingSpinner from '../common/LoadingSpinner'
-import EmptyState from '../common/EmptyState'
 
 const LEVELS = [1, 2, 3, 4, 5]
 
@@ -41,8 +40,8 @@ export default function Dashboard({ onStartQuiz }) {
 
     return (
         <div style={{
-            padding: '2rem 1.5rem',
-            maxWidth: 680,
+            padding: '2rem 3rem',
+            maxWidth: 900,
             margin: '0 auto',
             display: 'flex',
             flexDirection: 'column',
@@ -62,7 +61,10 @@ export default function Dashboard({ onStartQuiz }) {
                 <h1 style={{ fontSize: '1.6rem', fontWeight: 800, margin: 0 }}>
                     Welcome back, {user.name} 👋
                 </h1>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginTop: '0.3rem' }}>
+                <p style={{
+                    color: 'var(--color-text-muted)',
+                    fontSize: '0.85rem', marginTop: '0.3rem'
+                }}>
                     Keep learning. Every level counts.
                 </p>
             </div>
@@ -92,7 +94,8 @@ export default function Dashboard({ onStartQuiz }) {
                             {stat.value}
                         </div>
                         <div style={{
-                            fontSize: '0.72rem', color: 'var(--color-text-muted)',
+                            fontSize: '0.72rem',
+                            color: 'var(--color-text-muted)',
                             marginTop: '0.3rem'
                         }}>
                             {stat.label}
@@ -117,11 +120,7 @@ export default function Dashboard({ onStartQuiz }) {
                     Your Level Map — Class {user.class}
                 </div>
 
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.75rem'
-                }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {LEVELS.map(level => {
                         const unlocked = level <= maxLevel
                         const completed = level < maxLevel
@@ -129,9 +128,7 @@ export default function Dashboard({ onStartQuiz }) {
 
                         return (
                             <div key={level} style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '1rem',
+                                display: 'flex', alignItems: 'center', gap: '1rem',
                                 padding: '0.9rem 1rem',
                                 borderRadius: 'var(--radius-md)',
                                 background: current
@@ -139,20 +136,15 @@ export default function Dashboard({ onStartQuiz }) {
                                     : 'var(--color-surface-2)',
                                 border: `1px solid ${current
                                     ? 'var(--color-green)'
-                                    : completed
-                                        ? 'var(--color-border)'
-                                        : 'var(--color-border)'}`,
+                                    : 'var(--color-border)'}`,
                                 opacity: unlocked ? 1 : 0.4,
                                 transition: 'all 0.2s',
                             }}>
-                                {/* Status icon */}
+
                                 <div style={{
-                                    width: 36, height: 36,
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '1rem',
+                                    width: 36, height: 36, borderRadius: '50%',
+                                    display: 'flex', alignItems: 'center',
+                                    justifyContent: 'center', fontSize: '1rem',
                                     background: completed
                                         ? 'var(--color-green-dim)'
                                         : current
@@ -166,23 +158,17 @@ export default function Dashboard({ onStartQuiz }) {
                                     {completed ? '✅' : current ? '▶' : '🔒'}
                                 </div>
 
-                                {/* Level info */}
                                 <div style={{ flex: 1 }}>
                                     <div style={{
                                         fontWeight: 700, fontSize: '0.9rem',
-                                        color: current
-                                            ? 'var(--color-green)'
-                                            : 'var(--color-text)'
+                                        color: current ? 'var(--color-green)' : 'var(--color-text)'
                                     }}>
                                         Level {level}
                                         {current && (
                                             <span style={{
-                                                marginLeft: '0.5rem',
-                                                fontSize: '0.65rem',
-                                                background: 'var(--color-green)',
-                                                color: '#000',
-                                                padding: '0.1rem 0.4rem',
-                                                borderRadius: 4,
+                                                marginLeft: '0.5rem', fontSize: '0.65rem',
+                                                background: 'var(--color-green)', color: '#000',
+                                                padding: '0.1rem 0.4rem', borderRadius: 4,
                                                 fontWeight: 800,
                                             }}>
                                                 CURRENT
@@ -191,8 +177,7 @@ export default function Dashboard({ onStartQuiz }) {
                                     </div>
                                     <div style={{
                                         fontSize: '0.72rem',
-                                        color: 'var(--color-text-muted)',
-                                        marginTop: '0.1rem'
+                                        color: 'var(--color-text-muted)', marginTop: '0.1rem'
                                     }}>
                                         {level === 1 ? 'Basic concepts' :
                                             level === 2 ? 'Medium problems' :
@@ -202,27 +187,18 @@ export default function Dashboard({ onStartQuiz }) {
                                     </div>
                                 </div>
 
-                                {/* Start button */}
                                 {unlocked && (
-                                    <button
-                                        onClick={() => onStartQuiz(level)}
-                                        style={{
-                                            background: current
-                                                ? 'var(--color-green)'
-                                                : 'transparent',
-                                            border: `1px solid ${current
-                                                ? 'var(--color-green)'
-                                                : 'var(--color-border)'}`,
-                                            color: current ? '#000' : 'var(--color-text-muted)',
-                                            borderRadius: 8,
-                                            padding: '0.4rem 1rem',
-                                            fontSize: '0.78rem',
-                                            fontWeight: 700,
-                                            cursor: 'pointer',
-                                            fontFamily: 'var(--font-main)',
-                                            flexShrink: 0,
-                                        }}
-                                    >
+                                    <button onClick={() => onStartQuiz(level)} style={{
+                                        background: current
+                                            ? 'var(--color-green)' : 'transparent',
+                                        border: `1px solid ${current
+                                            ? 'var(--color-green)' : 'var(--color-border)'}`,
+                                        color: current ? '#000' : 'var(--color-text-muted)',
+                                        borderRadius: 8, padding: '0.4rem 1rem',
+                                        fontSize: '0.78rem', fontWeight: 700,
+                                        cursor: 'pointer', fontFamily: 'var(--font-main)',
+                                        flexShrink: 0,
+                                    }}>
                                         {completed ? 'Replay' : 'Start →'}
                                     </button>
                                 )}
@@ -231,11 +207,9 @@ export default function Dashboard({ onStartQuiz }) {
                     })}
                 </div>
 
-                {/* Board prep unlock */}
                 {maxLevel > 5 && (
                     <div style={{
-                        marginTop: '1rem',
-                        padding: '1rem',
+                        marginTop: '1rem', padding: '1rem',
                         borderRadius: 'var(--radius-md)',
                         background: 'var(--color-yellow-dim)',
                         border: '1px solid var(--color-yellow)',
@@ -250,23 +224,18 @@ export default function Dashboard({ onStartQuiz }) {
                         </div>
                         <div style={{
                             fontSize: '0.75rem',
-                            color: 'var(--color-text-muted)',
-                            marginTop: '0.2rem'
+                            color: 'var(--color-text-muted)', marginTop: '0.2rem'
                         }}>
                             Practice with real Tamil Nadu board questions
                         </div>
-                        <button
-                            onClick={() => onStartQuiz('board')}
-                            style={{
-                                marginTop: '0.75rem',
-                                background: 'var(--color-yellow)',
-                                border: 'none', color: '#000',
-                                borderRadius: 8, padding: '0.5rem 1.2rem',
-                                fontSize: '0.82rem', fontWeight: 800,
-                                cursor: 'pointer',
-                                fontFamily: 'var(--font-main)'
-                            }}
-                        >
+                        <button onClick={() => onStartQuiz('board')} style={{
+                            marginTop: '0.75rem',
+                            background: 'var(--color-yellow)',
+                            border: 'none', color: '#000',
+                            borderRadius: 8, padding: '0.5rem 1.2rem',
+                            fontSize: '0.82rem', fontWeight: 800,
+                            cursor: 'pointer', fontFamily: 'var(--font-main)'
+                        }}>
                             Start Board Prep →
                         </button>
                     </div>
@@ -290,18 +259,14 @@ export default function Dashboard({ onStartQuiz }) {
                         This Week's Engagement
                     </div>
                     <div style={{
-                        display: 'flex',
-                        alignItems: 'flex-end',
-                        gap: '0.5rem',
-                        height: 60,
+                        display: 'flex', alignItems: 'flex-end',
+                        gap: '0.5rem', height: 60,
                     }}>
                         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => (
                             <div key={day} style={{
-                                flex: 1,
-                                display: 'flex',
+                                flex: 1, display: 'flex',
                                 flexDirection: 'column',
-                                alignItems: 'center',
-                                gap: '0.3rem',
+                                alignItems: 'center', gap: '0.3rem',
                             }}>
                                 <div style={{
                                     width: '100%',
