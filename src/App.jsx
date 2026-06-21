@@ -1,6 +1,8 @@
 import { useAuth } from './context/AuthContext'
 import Login from './components/Login/index'
 import StudentApp from './components/Student/index'
+import TeacherApp from './components/Teacher/index'
+import ParentApp from './components/Parent/index'
 import ErrorBoundary from './components/common/ErrorBoundary'
 
 export default function App() {
@@ -8,35 +10,15 @@ export default function App() {
 
   if (!user) return <Login />
 
-  if (user.role === 'teacher') {
-    return (
-      <div style={{
-        display: 'flex', alignItems: 'center',
-        justifyContent: 'center', minHeight: '100vh',
-        color: 'var(--color-blue)',
-        fontFamily: 'var(--font-main)', fontSize: '1.1rem'
-      }}>
-        🛡️ Teacher Dashboard — coming Day 3
-      </div>
-    )
-  }
+  if (user.role === 'teacher') return (
+    <ErrorBoundary><TeacherApp /></ErrorBoundary>
+  )
 
-  if (user.role === 'parent') {
-    return (
-      <div style={{
-        display: 'flex', alignItems: 'center',
-        justifyContent: 'center', minHeight: '100vh',
-        color: 'var(--color-yellow)',
-        fontFamily: 'var(--font-main)', fontSize: '1.1rem'
-      }}>
-        👨‍👩‍👧 Parent Dashboard — coming Day 4
-      </div>
-    )
-  }
+  if (user.role === 'parent') return (
+    <ErrorBoundary><ParentApp /></ErrorBoundary>
+  )
 
   return (
-    <ErrorBoundary>
-      <StudentApp />
-    </ErrorBoundary>
+    <ErrorBoundary><StudentApp /></ErrorBoundary>
   )
 }
