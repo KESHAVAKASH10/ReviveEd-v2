@@ -597,3 +597,19 @@ export async function getParentMessages() {
 
     return data ?? []
 }
+export async function saveTeacherReply(messageId, reply) {
+    const { error } = await supabase
+        .from('parent_messages')
+        .update({
+            teacher_reply: reply,
+            replied_at: new Date().toISOString(),
+            status: 'read'
+        })
+        .eq('id', messageId)
+
+    if (error) {
+        console.error('[db] saveTeacherReply error:', error.message)
+        throw error
+    }
+    return true
+}
