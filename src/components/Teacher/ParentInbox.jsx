@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { formatDate } from '../../lib/utils'
+import { saveTeacherReply } from '../../lib/db'
 import EmptyState from '../common/EmptyState'
+import toast from 'react-hot-toast'
 
 const CATEGORY_COLOR = {
     General: 'var(--color-blue)',
@@ -11,6 +14,28 @@ const CATEGORY_COLOR = {
 function MessageCard({ message }) {
     const color = CATEGORY_COLOR[message.category] ?? 'var(--color-blue)'
     const isUnread = message.status === 'unread'
+    const [showReply, setShowReply] = useState(false)
+    const [replyText, setReplyText] = useState('')
+    const [sending, setSending] = useState(false)
+    const [replied, setReplied] = useState(!!message.teacher_reply)
+    const [replyContent, setReplyContent] = useState(message.teacher_reply ?? '')
+
+    async function handleSendReply() {
+        if (!replyText.trim() || sending) return
+        setSending(true)
+        try {
+            await saveTeacherReply(message.id, replyText.trim())
+            setReplyContent(replyText.trim())
+            setReplied(true)
+            setShowReply(false)
+            setReplyText('')
+            toast.success('Reply sent to parent')
+        } catch (err) {
+            toast.error('Failed to send reply')
+        } finally {
+            setSending(false)
+        }
+    }
 
     return (
         <div style={{
@@ -36,25 +61,21 @@ function MessageCard({ message }) {
                 justifyContent: 'space-between',
                 marginBottom: '0.5rem',
             }}>
-                <div style={{
-                    fontWeight: 700, fontSize: '0.88rem',
-                    color: 'var(--color-text)',
-                }}>
+                <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>
                     {message.sender_name}
                 </div>
                 <span style={{
                     fontSize: '0.65rem', fontWeight: 700,
-                    padding: '0.15rem 0.5rem',
-                    borderRadius: 4, textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    background: `${color}18`,
-                    color, border: `1px solid ${color}44`,
+                    padding: '0.15rem 0.5rem', borderRadius: 4,
+                    textTransform: 'uppercase', letterSpacing: '0.06em',
+                    background: `${color}18`, color,
+                    border: `1px solid ${color}44`,
                 }}>
                     {message.category}
                 </span>
             </div>
 
-            {/* Student name */}
+            {/* Student + date */}
             <div style={{
                 fontSize: '0.72rem',
                 color: 'var(--color-text-muted)',
@@ -68,17 +89,104 @@ function MessageCard({ message }) {
                 )}
             </div>
 
-            {/* Content */}
+            {/* Message content */}
             <div style={{
-                fontSize: '0.85rem',
-                color: 'var(--color-text)',
+                fontSize: '0.85rem', color: 'var(--color-text)',
                 lineHeight: 1.6,
                 background: 'var(--color-surface)',
-                padding: '0.75rem',
-                borderRadius: 8,
+                padding: '0.75rem', borderRadius: 8,
+                marginBottom: '0.75rem',
             }}>
                 {message.content}
             </div>
+
+            {/* Teacher reply — if exists */}
+            {replied && replyContent && (
+                <div style={{
+                    background: 'var(--color-green-dim)',
+                    border: '1px solid var(--color-green)',
+                    borderRadius: 8, padding: '0.75rem',
+                    marginBottom: '0.75rem',
+                }}>
+                    <div style={{
+                        fontSize: '0.65rem', fontFamily: 'var(--font-mono)',
+                        color: 'var(--color-green)',
+                        letterSpacing: '0.1em', textTransform: 'uppercase',
+                        marginBottom: '0.3rem'
+                    }}>
+                        ✓ Your Reply
+                    </div>
+                    <div style={{
+                        fontSize: '0.82rem', color: 'var(--color-text)',
+                        lineHeight: 1.5
+                    }}>
+                        {replyContent}
+                    </div>
+                </div>
+            )}
+
+            {/* Reply input */}
+            {showReply && (
+                <div style={{ marginBottom: '0.75rem' }}>
+                    <textarea
+                        placeholder="Type your reply to the parent..."
+                        value={replyText}
+                        onChange={e => setReplyText(e.target.value)}
+                        rows={3}
+                        style={{
+                            width: '100%', padding: '0.75rem',
+                            borderRadius: 8,
+                            background: 'var(--color-surface)',
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-text)',
+                            fontSize: '0.85rem',
+                            fontFamily: 'var(--font-main)',
+                            resize: 'none', outline: 'none',
+                            boxSizing: 'border-box',
+                            marginBottom: '0.5rem',
+                        }}
+                    />
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button onClick={handleSendReply} disabled={!replyText.trim() || sending} style={{
+                            background: replyText.trim()
+                                ? 'var(--color-green)' : 'var(--color-surface)',
+                            border: `1px solid ${replyText.trim()
+                                ? 'var(--color-green)' : 'var(--color-border)'}`,
+                            color: replyText.trim() ? '#000' : 'var(--color-text-muted)',
+                            borderRadius: 8, padding: '0.4rem 1rem',
+                            fontSize: '0.8rem', fontWeight: 700,
+                            cursor: replyText.trim() ? 'pointer' : 'not-allowed',
+                            fontFamily: 'var(--font-main)',
+                        }}>
+                            {sending ? 'Sending...' : 'Send Reply →'}
+                        </button>
+                        <button onClick={() => setShowReply(false)} style={{
+                            background: 'transparent',
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-text-muted)',
+                            borderRadius: 8, padding: '0.4rem 1rem',
+                            fontSize: '0.8rem', cursor: 'pointer',
+                            fontFamily: 'var(--font-main)',
+                        }}>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Reply button */}
+            {!showReply && (
+                <button onClick={() => setShowReply(true)} style={{
+                    background: 'transparent',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-muted)',
+                    borderRadius: 8, padding: '0.35rem 0.9rem',
+                    fontSize: '0.78rem', cursor: 'pointer',
+                    fontFamily: 'var(--font-main)',
+                }}>
+                    {replied ? '↩ Edit Reply' : '↩ Reply'}
+                </button>
+            )}
         </div>
     )
 }
@@ -110,8 +218,7 @@ export default function ParentInbox({ messages }) {
                 {unread > 0 && (
                     <span style={{
                         fontSize: '0.65rem', fontWeight: 700,
-                        padding: '0.15rem 0.5rem',
-                        borderRadius: 4,
+                        padding: '0.15rem 0.5rem', borderRadius: 4,
                         background: 'var(--color-blue-dim)',
                         color: 'var(--color-blue)',
                         border: '1px solid var(--color-blue)',
@@ -123,7 +230,7 @@ export default function ParentInbox({ messages }) {
 
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
                 gap: '1rem',
             }}>
                 {messages.map((m, i) => (
