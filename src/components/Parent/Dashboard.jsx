@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
-import { getParentNotifications, getStudentQuizHistory } from '../../lib/db'
-import { calcShield } from '../../lib/utils'
+import {
+    getParentNotifications,
+    getStudentQuizHistory,
+    getParentMessages
+} from '../../lib/db'
+import { formatDate } from '../../lib/utils'
 import NotificationCard from './NotificationCard'
 import MessageTeacher from './MessageTeacher'
 import LoadingSpinner from '../common/LoadingSpinner'
@@ -11,22 +15,25 @@ export default function Dashboard() {
     const { user } = useAuth()
     const [notifications, setNotifications] = useState([])
     const [quizHistory, setQuizHistory] = useState([])
+    const [messages, setMessages] = useState([])
     const [loading, setLoading] = useState(true)
     const [showMessage, setShowMessage] = useState(false)
 
-    const childName = user.childName ?? 'your child'
+    const childName = user.childName ?? 'Arjun'
     const childId = `demo-student-${childName.toLowerCase()}`
 
     useEffect(() => {
         async function load() {
             setLoading(true)
             try {
-                const [notifs, history] = await Promise.all([
+                const [notifs, history, msgs] = await Promise.all([
                     getParentNotifications(user.name),
                     getStudentQuizHistory(childId),
+                    getParentMessages()
                 ])
                 setNotifications(notifs)
                 setQuizHistory(history)
+                setMessages(msgs.filter(m => m.student_name === childName))
             } catch (err) {
                 console.error('[Parent Dashboard] error:', err.message)
             } finally {
@@ -34,7 +41,7 @@ export default function Dashboard() {
             }
         }
         load()
-    }, [user.name, childId])
+    }, [user.name, childId, childName])
 
     if (loading) return <LoadingSpinner text="Loading your dashboard..." />
 
@@ -42,13 +49,17 @@ export default function Dashboard() {
     const shield = recentScores.length > 0
         ? Math.round(recentScores.reduce((a, b) => a + b, 0) / recentScores.length * 100)
         : 0
+
     const shieldColor = shield >= 70
         ? 'var(--color-green)'
         : shield >= 40
             ? 'var(--color-yellow)'
-            : 'var(--color-red)'
+            : shield > 0
+                ? 'var(--color-red)'
+                : 'var(--color-text-muted)'
 
     const unreadCount = notifications.filter(n => !n.read).length
+    const teacherReplies = messages.filter(m => m.teacher_reply)
 
     return (
         <div style={{
@@ -96,7 +107,6 @@ export default function Dashboard() {
                     Learning Shield
                 </div>
 
-                {/* Shield SVG */}
                 <div style={{ margin: '0 auto 1rem', width: 120, height: 140 }}>
                     <svg viewBox="0 0 120 140" width="120" height="140">
                         <defs>
@@ -107,40 +117,31 @@ export default function Dashboard() {
                         <path
                             d="M60 8 L108 28 L108 72 Q108 110 60 132 Q12 110 12 72 L12 28 Z"
                             fill="var(--color-surface-2)"
-                            stroke={shieldColor}
-                            strokeWidth="2.5"
+                            stroke={shieldColor} strokeWidth="2.5"
                         />
                         <rect
                             x="12"
                             y={132 - (shield / 100) * 124}
                             width="96"
                             height={(shield / 100) * 124}
-                            fill={shieldColor}
-                            opacity="0.35"
+                            fill={shieldColor} opacity="0.35"
                             clipPath="url(#shieldClip)"
                         />
                         <path
                             d="M60 8 L108 28 L108 72 Q108 110 60 132 Q12 110 12 72 L12 28 Z"
-                            fill="none"
-                            stroke={shieldColor}
-                            strokeWidth="2.5"
+                            fill="none" stroke={shieldColor} strokeWidth="2.5"
                         />
                         <text
-                            x="60" y="76"
-                            textAnchor="middle"
+                            x="60" y="76" textAnchor="middle"
                             dominantBaseline="central"
-                            fill={shieldColor}
-                            fontSize="22"
-                            fontWeight="900"
-                            fontFamily="monospace"
+                            fill={shieldColor} fontSize="22"
+                            fontWeight="900" fontFamily="monospace"
                         >
                             {shield}%
                         </text>
                         <text
-                            x="60" y="48"
-                            textAnchor="middle"
-                            dominantBaseline="central"
-                            fontSize="18"
+                            x="60" y="48" textAnchor="middle"
+                            dominantBaseline="central" fontSize="18"
                         >
                             {shield >= 70 ? '🛡️' : shield >= 40 ? '⚠️' : '🔴'}
                         </text>
@@ -157,7 +158,8 @@ export default function Dashboard() {
                 }}>
                     {shield >= 70 ? '🛡️ Shield Strong'
                         : shield >= 40 ? '⚠️ Shield Weakening'
-                            : '🔴 Shield Critical'}
+                            : shield > 0 ? '🔴 Shield Critical'
+                                : 'No quiz data yet'}
                 </div>
 
                 <p style={{
@@ -169,7 +171,9 @@ export default function Dashboard() {
                         ? `${childName} is doing great! Keep encouraging them.`
                         : shield >= 40
                             ? `${childName} needs some support. Check the alerts below.`
-                            : `${childName} needs immediate attention. Please review the teacher's messages.`
+                            : shield > 0
+                                ? `${childName} needs immediate attention. Please review the teacher's messages.`
+                                : `${childName} hasn't completed any quizzes yet.`
                     }
                 </p>
             </div>
@@ -204,8 +208,7 @@ export default function Dashboard() {
                                 </div>
                                 {q.wrongTopics.length > 0 && (
                                     <div style={{
-                                        fontSize: '0.7rem',
-                                        color: 'var(--color-red)',
+                                        fontSize: '0.7rem', color: 'var(--color-red)',
                                         marginTop: '0.1rem'
                                     }}>
                                         Needs work: {q.wrongTopics.slice(0, 2).join(', ')}
@@ -213,13 +216,55 @@ export default function Dashboard() {
                                 )}
                             </div>
                             <div style={{
-                                fontFamily: 'var(--font-mono)',
-                                fontWeight: 700, fontSize: '0.9rem',
+                                fontFamily: 'var(--font-mono)', fontWeight: 700,
+                                fontSize: '0.9rem',
                                 color: q.accuracy >= 0.6
-                                    ? 'var(--color-green)'
-                                    : 'var(--color-red)',
+                                    ? 'var(--color-green)' : 'var(--color-red)',
                             }}>
                                 {q.score}/{q.total}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Teacher Replies */}
+            {teacherReplies.length > 0 && (
+                <div style={{
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-green)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '1.4rem',
+                }}>
+                    <div style={{
+                        fontSize: '0.7rem', fontFamily: 'var(--font-mono)',
+                        color: 'var(--color-green)',
+                        letterSpacing: '0.15em', textTransform: 'uppercase',
+                        marginBottom: '1rem'
+                    }}>
+                        Teacher Replies
+                    </div>
+                    {teacherReplies.map((m, i) => (
+                        <div key={i} style={{
+                            background: 'var(--color-green-dim)',
+                            border: '1px solid var(--color-green)',
+                            borderRadius: 8, padding: '0.75rem',
+                            marginBottom: i < teacherReplies.length - 1 ? '0.75rem' : 0,
+                        }}>
+                            <div style={{
+                                fontSize: '0.72rem', color: 'var(--color-text-muted)',
+                                marginBottom: '0.4rem'
+                            }}>
+                                Re: your message about {m.student_name}
+                                {m.replied_at && (
+                                    <span> · {formatDate(m.replied_at)}</span>
+                                )}
+                            </div>
+                            <div style={{
+                                fontSize: '0.85rem', color: 'var(--color-text)',
+                                lineHeight: 1.6
+                            }}>
+                                {m.teacher_reply}
                             </div>
                         </div>
                     ))}
