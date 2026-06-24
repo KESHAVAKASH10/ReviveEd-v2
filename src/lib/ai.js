@@ -1,5 +1,6 @@
 import { buildInsightPrompt, buildDoubtPrompt, buildNudgePrompt } from './prompts'
 
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 const AI_PROVIDER = import.meta.env.VITE_AI_PROVIDER || 'nvidia'
 const AI_FUNCTION_URL = import.meta.env.VITE_AI_FUNCTION_URL || ''
 const AI_KEY = import.meta.env.VITE_AI_API_KEY || ''
@@ -18,7 +19,8 @@ async function callAI(payload) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                ...(AI_KEY ? { Authorization: `Bearer ${AI_KEY}` } : {})
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'x-nvidia-api-key': AI_KEY
             },
             body: JSON.stringify({
                 provider: AI_PROVIDER,
