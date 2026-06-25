@@ -61,13 +61,13 @@ Every AI call is built from real student data — attempt history, engagement tr
 - Learning Shield — visual progress tracker based on real quiz accuracy
 - Doubt Room — ask anything from your syllabus, get curriculum-aware answers
 - Study Groups, Activity Heatmap, Board Exam Prep mode
-- 
+  
 **Teacher**
 - Engagement Heatmap — 6-day colour-coded grid per student
 - AI Insight — root cause analysis with explainability panel
 - One-click parent nudge
 - Risk classification — Critical / Warning / Safe
-- 
+  
 **Parent**
 - Learning Shield view for their child
 - AI-generated teacher notifications
