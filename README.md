@@ -49,7 +49,7 @@ Every AI call is built from real student data — attempt history, engagement tr
 | Frontend | React 19 + Vite |
 | Styling | Pure CSS with CSS Variables |
 | Backend | Supabase (PostgreSQL + Edge Functions) |
-| AI | Anthropic Claude (claude-haiku) via Edge Functions |
+| AI | Nvidia Llama-3.1 Nemotron 70B via edge functions|
 | Deployment | Vercel (frontend) + Supabase (backend) |
  
 ---
@@ -61,11 +61,13 @@ Every AI call is built from real student data — attempt history, engagement tr
 - Learning Shield — visual progress tracker based on real quiz accuracy
 - Doubt Room — ask anything from your syllabus, get curriculum-aware answers
 - Study Groups, Activity Heatmap, Board Exam Prep mode
+- 
 **Teacher**
 - Engagement Heatmap — 6-day colour-coded grid per student
 - AI Insight — root cause analysis with explainability panel
 - One-click parent nudge
 - Risk classification — Critical / Warning / Safe
+- 
 **Parent**
 - Learning Shield view for their child
 - AI-generated teacher notifications
