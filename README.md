@@ -21,16 +21,6 @@ In large Indian classrooms, teachers cannot individually track why each student 
  
 ---
  
-## Demo Credentials
- 
-| Role | Username | Password |
-|---|---|---|
-| Student | Arjun | 8 |
-| Teacher | Teacher01 | teach01 |
-| Parent | Parent01 | par01 |
- 
----
- 
 ## How the AI Works
  
 Three Supabase Edge Functions handle all AI inference — the frontend never calls the model directly:
@@ -50,7 +40,6 @@ Every AI call is built from real student data — attempt history, engagement tr
 | Styling | Pure CSS with CSS Variables |
 | Backend | Supabase (PostgreSQL + Edge Functions) |
 | AI | Nvidia Llama-3.1 Nemotron 70B via edge functions|
-| Deployment | Vercel (frontend) + Supabase (backend) |
  
 ---
  
