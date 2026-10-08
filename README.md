@@ -1,4 +1,4 @@
-# ReviveEd v2 🛡️
+# ReviveEd v2 
 **AI that tells teachers why students are failing, before it's too late.**
  
 Most students who fall behind don't know why. Their teachers don't have the bandwidth to find out, and parents often discover it too late. ReviveEd v2 closes that gap.
